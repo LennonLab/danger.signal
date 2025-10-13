@@ -631,23 +631,82 @@ library(cowplot)
 library(magick)
 plate.img <- image_read("~/GitHub/danger.signal/2.square_plate/Data/23_h-1.tif")
 
+# Save as high res svg/pdf
+pdf("~/GitHub/danger.signal/2.square_plate/Figures/S11_panel.pdf", width = 12, height = 8)
 #Convert image to cowplot object
 # Step 2: Convert image to a cowplot object
-img_plot <- ggdraw() + draw_image(plate.img)
-empty.plot <- ggdraw()
+# img_plot <- ggdraw() + draw_image(plate.img)
+# img_plot <- img_plot +
+#   coord_cartesian(clip = "off") +
+#   theme(plot.margin = margin(10,10,10,10))
+#empty.plot <- ggdraw()
 # Okay actually we will add the image later, create an empty plot 
 # Step 3: Combine all plots with the image on the left
+# combined_plots <- ggdraw() +
+#   draw_plot(img_plot, x = 0,   y = 0, width = 1/3, height = 1) +  # Left image
+#   draw_plot(sp.time.plot,  x = 1/3, y = 0, width = 1/3, height = 1) +  # Center plot
+#   draw_plot(sp.box.plot,   x = 2/3, y = 0, width = 1/3, height = 1) +  # Right plot
+#   theme(plot.background = element_rect(fill= "white", color = NA)) +
+#   draw_plot_label(label = c("(A)", "(B)", "(C)"), size = 16,
+#                   x = c(0.05, 0.38, 0.71), y = c(1, 1, 1))
+
+
+# # Re-plotting so that A is on top and B and C are on the bottom
+# library(cowplot)
+# 
+# combined_plots <- ggdraw() +
+#   # Panel A (larger, top)
+#   draw_plot(img_plot, x = 0, y = 0.37, width = 1, height = 0.61, scale = 0.98) +
+# 
+#   # Panels B and C (smaller, bottom row)
+#   draw_plot(sp.time.plot, x = 0,     y = 0, width = 0.5, height = 0.55) +
+#   draw_plot(sp.box.plot,  x = 0.5,   y = 0, width = 0.5, height = 0.55) +
+# 
+#   # Background
+#   theme(plot.background = element_rect(fill = "white", color = NA)) +
+# 
+#   # Labels
+#   draw_plot_label(
+#     label = c("(A)", "(B)", "(C)"),
+#     size = 16,
+#     x = c(0.02, 0.01, 0.51),
+#     y = c(1, 0.5, 0.5)
+#   )
+
+# Troubleshooting again 
+
+library(cowplot)
+
+# Make the image slightly smaller inside its own canvas
+img_plot <- ggdraw() +
+  draw_image(plate.img, scale = 0.60) +  # add a bit of padding
+  theme(plot.margin = margin(10,10,10,10)) +
+  coord_cartesian(clip = "off")
+
 combined_plots <- ggdraw() +
-  draw_plot(empty.plot, x = 0,   y = 0, width = 1/3, height = 1) +  # Left image
-  draw_plot(sp.time.plot,  x = 1/3, y = 0, width = 1/3, height = 1) +  # Center plot
-  draw_plot(sp.box.plot,   x = 2/3, y = 0, width = 1/3, height = 1) +  # Right plot
-  theme(plot.background = element_rect(fill= "white", color = NA)) +
-  draw_plot_label(label = c("(A)", "(B)", "(C)"), size = 16,
-                  x = c(0.05, 0.38, 0.71), y = c(1, 1, 1))
+  # Panel A (top, no clipping)
+  draw_plot(img_plot, x = 0, y = 0.37, width = 1, height = 0.75) +
+
+  # Panels B and C (bottom row)
+  draw_plot(sp.time.plot, x = 0,   y = 0, width = 0.5, height = 0.55) +
+  draw_plot(sp.box.plot,  x = 0.5, y = 0, width = 0.5, height = 0.55) +
+
+  # Labels
+  draw_plot_label(
+    label = c("(A)", "(B)", "(C)"),
+    size  = 16,
+    x     = c(0.3, 0.01, 0.508),
+    y     = c(0.995, 0.50, 0.50)
+  ) +
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+
+
 
 print(combined_plots)
-
-ggsave("~/GitHub/danger.signal/2.square_plate/Figures/combined_plotswspace.png", combined_plots, width = 12, height = 4)
+# Close the device
+dev.off()
+#ggsave("~/GitHub/danger.signal/2.square_plate/Figures/combined_plotswspace.png", combined_plots, width = 12, height = 4)
 ```
 
 Extra: Original version of the above code
