@@ -396,6 +396,9 @@ fc.box.plot <- ggplot(lag_data, aes(x = Treatment, y = lag_time)) +
   ) +
   scale_y_continuous(sec.axis = sec_axis(~., labels = NULL)) +
   annotate("text", x = 3, y = 18, label = "ANOVA p-value = 0.7", color = "black") +
+     theme(
+    text = element_text(family = "Arial")
+  )+
   #theme(
     #axis.ticks.x.top = element_line(),       # Show top ticks
     #axis.line.x.top = element_line(),        # Draw top axis line
@@ -413,7 +416,7 @@ library(cowplot)
 library(magick)
 fc.img <- image_read("~/GitHub/danger.signal/1.flow_cytometry/Figures/fc_SYBR_cells.png")
 # Save as high res svg/pdf
-pdf("~/GitHub/danger.signal/1.flow_cytometry/Figures/S10_panel.pdf", width = 12, height = 8)
+pdf("~/GitHub/danger.signal/1.flow_cytometry/Figures/S10_panel_jan2026.pdf", width = 12, height = 8)
 #Convert image to cowplot object
 # Step 2: Convert image to a cowplot object
 #img_plot <- ggdraw() + draw_image(fc.img)
@@ -453,6 +456,45 @@ pdf("~/GitHub/danger.signal/1.flow_cytometry/Figures/S10_panel.pdf", width = 12,
 # Troubleshooting again 
 
 library(cowplot)
+# Make the image slightly smaller inside its own canvas
+img_plot <- ggdraw() +
+  draw_image(fc.img, scale = 0.60) +  # add a bit of padding
+  theme(plot.margin = margin(10,10,10,10)) +
+  coord_cartesian(clip = "off")
+
+fc.combined_plots <- ggdraw() +
+  # Panel A (top, no clipping)
+  draw_plot(img_plot, x = 0, y = 0.37, width = 1, height = 0.75) +
+
+  # Panels B and C (bottom row)
+  draw_plot(fc.time.plot, x = 0,   y = 0, width = 0.5, height = 0.55) +
+  draw_plot(fc.box.plot_fixed,  x = 0.5, y = 0, width = 0.5, height = 0.55) +
+
+  # Labels
+  draw_plot_label(
+    label = c("A", "B", "C"),
+    size  = 16,
+    x     = c(0.23, 0.01, 0.508),
+    y     = c(0.995, 0.50, 0.50)
+  ) +
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+print(fc.combined_plots)
+#ggsave("~/GitHub/danger.signal/1.flow_cytometry/Figures/S10_panel.png", fc.combined_plots, width = 12, height = 6)
+
+
+# Close the device
+dev.off()
+#pdf("~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_red_green.pdf", width = 6, height = 4)
+```
+7. Plot time series and box plot together (PDF and PPTX)
+```{r}
+library(ggplot2)
+library(cowplot)
+library(magick)
+library(export)
+fc.img <- image_read("~/GitHub/danger.signal/1.flow_cytometry/Figures/fc_SYBR_cells.png")
+
 
 # Make the image slightly smaller inside its own canvas
 img_plot <- ggdraw() +
@@ -466,21 +508,27 @@ fc.combined_plots <- ggdraw() +
 
   # Panels B and C (bottom row)
   draw_plot(fc.time.plot, x = 0,   y = 0, width = 0.5, height = 0.55) +
-  draw_plot(fc.box.plot,  x = 0.5, y = 0, width = 0.5, height = 0.55) +
+  draw_plot(fc.box.plot_fixed,  x = 0.5, y = 0, width = 0.5, height = 0.55) +
 
   # Labels
   draw_plot_label(
-    label = c("(A)", "(B)", "(C)"),
+    label = c("A", "B", "C"),
     size  = 16,
     x     = c(0.23, 0.01, 0.508),
     y     = c(0.995, 0.50, 0.50)
   ) +
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-print(fc.combined_plots)
+
 #ggsave("~/GitHub/danger.signal/1.flow_cytometry/Figures/S10_panel.png", fc.combined_plots, width = 12, height = 6)
 
 
+# Save as pdf
+#cairo_pdf("~/GitHub/danger.signal/1.flow_cytometry/Figures/S10_panel_jan2026.pdf", width = 12, height = 8)
+# Export to pptx
+
+print(fc.combined_plots)
+graph2ppt(file = "S10_panel_jan2026.pptx", width = 12, height = 8) # this saves to the code folder
 # Close the device
 dev.off()
 #pdf("~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_red_green.pdf", width = 6, height = 4)

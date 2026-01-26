@@ -307,7 +307,7 @@ To match Magalie, we might consider plotting standard deviations and means as ab
 
 ```{r}
 library(ggplot2)
-svg("virospore_plot.svg", width = 6, height = 4)
+svg("virospore_plot_jan2026.svg", width = 6, height = 4)
 ggplot(viro_quant_avg, aes(x = Distance_from_PFU_center_cm, y = mean_virospores)) +
   geom_line(color = "#94f293", size = 1) + 
   geom_errorbar(aes(ymin = mean_virospores - SEM, ymax = mean_virospores + SEM),
@@ -320,7 +320,7 @@ ggplot(viro_quant_avg, aes(x = Distance_from_PFU_center_cm, y = mean_virospores)
   labs(
     title = "", # no need to include plot titles in publications
     x = "Distance from center (cm)",
-    y = "Virospores (#/cm²)"
+    y = "Virospores (cm²)"
   ) +
   theme_classic() +    # <<-- use classic theme instead of minimal
   coord_fixed(ratio = 0.1) +
@@ -335,14 +335,15 @@ dev.off()
 
 ```{r}
 library(ggplot2)
+library(export)
 
 # Save as SVG
 #svg("~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_reddash.svg", width = 8, height = 6)
-pdf("~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_red_green.pdf", width = 6, height = 4)
+#pdf("~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_jan2026.pdf", width = 6, height = 4)
 
 # Create the plot
 ggplot(viro_quant_avg, aes(x = Distance_from_PFU_center_cm, y = mean_virospores)) +
-  geom_line(color = "#94f293", size = 1) +  # straight line connecting points
+  geom_line(color = "red", linewidth = 1) +  # straight line connecting points
     geom_vline(xintercept = c(0.05, 0.1),
              linetype = "dashed", color = "darkgray", size = 0.8) +
   geom_errorbar(aes(ymin = mean_virospores - SEM, ymax = mean_virospores + SEM),
@@ -353,7 +354,7 @@ ggplot(viro_quant_avg, aes(x = Distance_from_PFU_center_cm, y = mean_virospores)
   labs(
     title = "",
     x = "Distance from center (cm)",
-    y = "Virospores (#/cm²)"
+    y = expression("Virospores (cm"^-2*")")
   ) +
   theme_classic() +
   coord_fixed(ratio = 0.1) +
@@ -362,8 +363,77 @@ ggplot(viro_quant_avg, aes(x = Distance_from_PFU_center_cm, y = mean_virospores)
     axis.line = element_line(color = "black"), 
     plot.title = element_text(hjust = 0.5, vjust = 0.5)
   )
-
+# Export to pptx
+graph2ppt(file = "virospore_plot_jan2026.pptx", width = 6, height = 4)
 # Close the device
+#dev.off()
+
+```
+
+
+
+```{r}
+# Save as pdf
+pdf("~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_jan2026.pdf", width = 6, height = 4)
+ggplot(viro_quant_avg, aes(x = Distance_from_PFU_center_cm, y = mean_virospores)) +
+  geom_line(color = "red", linewidth = 1) +
+  geom_vline(xintercept = c(0.05, 0.1),
+             linetype = "dashed", color = "darkgray", linewidth = 0.8) +
+  geom_errorbar(aes(ymin = mean_virospores - SEM,
+                    ymax = mean_virospores + SEM),
+                width = 0.005, color = "black") +
+  geom_point(color = "red", size = 3) +
+  scale_y_log10() +
+  labs(
+    title = "",
+    x = "Distance from center (cm)",
+    y = expression("Virospores (cm"^-2*")"),
+  ) +
+  coord_fixed(ratio = 0.1) +
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial"),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+    axis.line = element_line(color = "black"),
+    plot.title = element_text(hjust = 0.5, vjust = 0.5)
+  )
+# Close the device
+dev.off()
+
+```
+Saving with Arial font
+```{r}
+library(ggplot2)
+
+pdf(
+  "~/GitHub/danger.signal/Magalie_virospore_quant/virospore_plot_jan2026.pdf",
+  width = 8,
+  height = 6
+)
+
+p <- ggplot(viro_quant_avg, aes(Distance_from_PFU_center_cm, mean_virospores)) +
+  geom_line(color = "red", linewidth = 1) +
+  geom_vline(xintercept = c(0.05, 0.1),
+             linetype = "dashed", color = "darkgray", linewidth = 0.8) +
+  geom_errorbar(aes(
+    ymin = pmax(mean_virospores - SEM, 1e-6),
+    ymax = mean_virospores + SEM
+  ),
+  width = 0.005, color = "black") +
+  geom_point(color = "red", size = 3) +
+  scale_y_log10() +
+  labs(
+    x = "Distance from center (cm)",
+    y = "Virospores (cm²)"
+  ) +
+  coord_fixed(ratio = 0.1) +
+  theme(
+    text = element_text(family = "Arial"),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+    axis.line = element_line(color = "black")
+  )
+
+print(p)
 dev.off()
 
 ```

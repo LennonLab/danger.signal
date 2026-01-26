@@ -629,10 +629,11 @@ print(sp.box.plot)
 library(ggplot2)
 library(cowplot)
 library(magick)
+library(export)
 plate.img <- image_read("~/GitHub/danger.signal/2.square_plate/Data/23_h-1.tif")
 
 # Save as high res svg/pdf
-pdf("~/GitHub/danger.signal/2.square_plate/Figures/S11_panel.pdf", width = 12, height = 8)
+#svg("~/GitHub/danger.signal/2.square_plate/Figures/S11_panel_jan2026.svg", width = 12, height = 8)
 #Convert image to cowplot object
 # Step 2: Convert image to a cowplot object
 # img_plot <- ggdraw() + draw_image(plate.img)
@@ -693,7 +694,7 @@ combined_plots <- ggdraw() +
 
   # Labels
   draw_plot_label(
-    label = c("(A)", "(B)", "(C)"),
+    label = c("A", "B", "C"),
     size  = 16,
     x     = c(0.3, 0.01, 0.508),
     y     = c(0.995, 0.50, 0.50)
@@ -701,7 +702,12 @@ combined_plots <- ggdraw() +
   theme(plot.background = element_rect(fill = "white", color = NA))
 
 
+# Save as pdf
+#cairo_pdf("~/GitHub/danger.signal/2.square_plate/Figures/S11_panel_jan2026.pdf", width = 12, height = 8)
+# Export to pptx
 
+print(combined_plots)
+graph2ppt(file = "S11_panel_jan2026.pptx", width = 12, height = 8) # this saves to the code folder
 
 print(combined_plots)
 # Close the device
